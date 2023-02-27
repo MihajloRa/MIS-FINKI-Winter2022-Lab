@@ -15,10 +15,11 @@ class LoginScreen extends StatelessWidget {
     return BlocListener<AuthenticationBloc, AuthenticationState>(
       listener: (context, state) {
         if (state is SuccessState) {
-          Navigator.of(context).push(
+          Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
               builder: (context) => const AppointmentList(),
             ),
+              (state) => state is SuccessState
           );
         }
         if (state is ErrorState) {
@@ -31,6 +32,7 @@ class LoginScreen extends StatelessWidget {
       },
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: const Text('Login'),
           centerTitle: true,
         ),

@@ -11,5 +11,7 @@ abstract class AuthService {
     required String password,
   });
 
-  Future<bool> isUserLoggedIn();
+  Future<UserEntity> getLoggedInUser();
+
+  Future<void> signOut();
 }

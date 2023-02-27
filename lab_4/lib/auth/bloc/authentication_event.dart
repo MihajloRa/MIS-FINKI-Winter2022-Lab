@@ -1,6 +1,9 @@
 part of 'authentication_bloc.dart';
 
-abstract class AuthenticationEvent {}
+class AuthenticationEvent extends Equatable {
+  @override
+  List<Object?> get props => [];
+}
 
 class LoginWithEmailAndPasswordEvent extends AuthenticationEvent {
   final String email;
@@ -10,6 +13,9 @@ class LoginWithEmailAndPasswordEvent extends AuthenticationEvent {
     required this.email,
     required this.password,
   });
+
+  @override
+  List<Object?> get props => [email];
 }
 
 class UserAlreadyLoggedInEvent extends AuthenticationEvent {}
@@ -22,4 +28,12 @@ class CreateAccountEvent extends AuthenticationEvent {
     required this.email,
     required this.password,
   });
+
+  @override
+  List<Object?> get props => [email];
 }
+
+class UserSignOutEvent extends AuthenticationEvent {
+
+}
+

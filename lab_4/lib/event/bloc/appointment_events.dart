@@ -1,28 +1,28 @@
 import 'package:equatable/equatable.dart';
-
-import '../model/appointment_model.dart';
+import 'package:repository/repository.dart';
 
 abstract class AppointmentEvent extends Equatable {
   const AppointmentEvent();
 
   @override
   List<Object> get props => [];
+
 }
 
 class AddAppointment extends AppointmentEvent {
-  final AppointmentModel appointment;
+  final AppointmentEntity appointment;
 
   const AddAppointment(this.appointment);
 
   @override
-  List<Object> get props => [appointment];
+  String toString() => 'Added appointment {$appointment}';
 
   @override
-  String toString() => 'AddAppointment {$appointment}';
+  List<Object> get props => [appointment];
 }
 
 class RemoveAppointment extends AppointmentEvent {
-  final AppointmentModel appointment;
+  final AppointmentEntity appointment;
 
   const RemoveAppointment(this.appointment);
 
@@ -30,5 +30,22 @@ class RemoveAppointment extends AppointmentEvent {
   List<Object> get props => [appointment];
 
   @override
-  String toString() => 'RemoveAppointment {$appointment}';
+  String toString() => 'Removed appointment {$appointment}';
+}
+
+class FetchAppointments extends AppointmentEvent {
+  const FetchAppointments();
+}
+
+class AppointmentsFilterChanged extends AppointmentEvent {
+  const AppointmentsFilterChanged(this.filter);
+
+  final AppointmentViewFilter filter;
+
+  @override
+  List<Object> get props => [filter];
+}
+
+class AppointmentUndoRemove extends AppointmentEvent {
+  const AppointmentUndoRemove();
 }

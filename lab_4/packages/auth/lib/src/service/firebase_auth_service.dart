@@ -1,11 +1,11 @@
+import 'dart:async';
+
 import '../model/model.dart';
 import './auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 
 class FirebaseAuthService implements AuthService {
-  FirebaseAuthService({
-    required auth.FirebaseAuth authService,
-  }) : _firebaseAuth = authService;
+  FirebaseAuthService() : _firebaseAuth = auth.FirebaseAuth.instance;
 
   final auth.FirebaseAuth _firebaseAuth;
 
@@ -14,15 +14,15 @@ class FirebaseAuthService implements AuthService {
       return UserEntity.empty();
     }
 
-    var splittedName = ['Name ', 'LastName'];
+    var splitName = ['Name ', 'LastName'];
     if (user.displayName != null) {
-      splittedName = user.displayName!.split(' ');
+      splitName = user.displayName!.split(' ');
     }
 
     final map = <String, dynamic>{
       'id': user.uid,
-      'firstName': splittedName.first,
-      'lastName': splittedName.last,
+      'firstName': splitName.first,
+      'lastName': splitName.last,
       'email': user.email ?? '',
       'emailVerified': user.emailVerified,
       'imageUrl': user.photoURL ?? '',
@@ -69,13 +69,8 @@ class FirebaseAuthService implements AuthService {
   }
 
   @override
-  Future<bool> isUserLoggedIn() async {
-    try {
-      var currentUser = _firebaseAuth.currentUser;
-      return !(currentUser == null || currentUser.isAnonymous);
-    } on auth.FirebaseAuthException catch (e) {
-      throw _determineError(e);
-    }
+  Future<UserEntity> getLoggedInUser() async {
+    return _mapFirebaseUser(_firebaseAuth.currentUser);
   }
 
   AuthError _determineError(auth.FirebaseAuthException exception) {
@@ -102,4 +97,10 @@ class FirebaseAuthService implements AuthService {
         return AuthError.error;
     }
   }
+
+  @override
+  Future<void> signOut() async {
+    await _firebaseAuth.signOut();
+  }
+
 }

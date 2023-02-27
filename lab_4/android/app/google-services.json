@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "256156674385",
+    "project_id": "termini-firebase-auth",
+    "storage_bucket": "termini-firebase-auth.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:256156674385:android:2593b50005c2c593a50b70",
+        "android_client_info": {
+          "package_name": "com.mihajlora.lab_4"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "256156674385-7d75q565li1jicu25dock9q6va421ggl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUKZNhoIWPAEoL1uDRXhe10chr6dXJ560"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "256156674385-7d75q565li1jicu25dock9q6va421ggl.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "256156674385-cki8coqnfhb55udpf2cq3p4akhk0pkjd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mihajlora.lab4"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

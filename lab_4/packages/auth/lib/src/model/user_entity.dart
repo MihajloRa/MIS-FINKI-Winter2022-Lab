@@ -6,6 +6,7 @@ class UserEntity extends Equatable {
     required this.firstName,
     required this.lastName,
     required this.email,
+    required this.isAnonymous,
     required this.imageUrl,
   });
 
@@ -13,6 +14,7 @@ class UserEntity extends Equatable {
   final String firstName;
   final String lastName;
   final String email;
+  final bool isAnonymous;
   final String imageUrl;
 
   factory UserEntity.fromJson(Map<String, dynamic> json) => UserEntity(
@@ -20,6 +22,7 @@ class UserEntity extends Equatable {
     firstName: json['firstName'] ?? "",
     lastName: json['lastName'] ?? "",
     email: json['email'] ?? "",
+    isAnonymous: false,
     imageUrl: json['imageUrl'] ?? "",
   );
 
@@ -36,6 +39,7 @@ class UserEntity extends Equatable {
     firstName: "",
     lastName: "",
     email: "",
+    isAnonymous: true,
     imageUrl: "",
   );
   @override

@@ -1,65 +1,42 @@
-import '../model/appointment_model.dart';
+import 'package:equatable/equatable.dart';
+import 'package:repository/repository.dart';
 
-abstract class AppointmentListState {
-  final List<AppointmentModel> appointmentList;
-  const AppointmentListState({required this.appointmentList});
+enum AppointmentListStatus { initial, loading, success, failure }
 
-  @override
-  List<Object> get props => [];
-}
+class AppointmentListState extends Equatable {
+  const AppointmentListState({
+    this.status = AppointmentListStatus.initial,
+    this.appointments = const [],
+    this.filter = AppointmentViewFilter.all,
+    this.lastDeleted,
+  });
 
-class AppointmentListLoadInProgress extends AppointmentListState {
-  AppointmentListLoadInProgress({required super.appointmentList});
-}
+  final AppointmentListStatus status;
+  final List<AppointmentEntity> appointments;
+  final AppointmentViewFilter filter;
+  final AppointmentEntity? lastDeleted;
 
-class AppointmentAdded extends AppointmentListState {
-  final List<AppointmentModel> appointmentList;
+  Iterable<AppointmentEntity> get filteredAppointments => filter.applyAll(appointments);
 
-  const AppointmentAdded({required this.appointmentList})
-      : super(appointmentList: appointmentList);
-
-  @override
-  List<Object> get props => [appointmentList];
-
-  @override
-  String toString() => 'Appointment added {$appointmentList}';
-}
-
-class AppointmentAlreadyExists extends AppointmentListState {
-  final List<AppointmentModel> appointmentList;
-
-  const AppointmentAlreadyExists({required this.appointmentList})
-    : super(appointmentList: appointmentList);
-
-  @override
-  List<Object> get props => [appointmentList];
+  AppointmentListState copyWith({
+    AppointmentListStatus Function()? status,
+    List<AppointmentEntity> Function()? appointments,
+    AppointmentViewFilter Function()? filter,
+    AppointmentEntity? Function()? lastDeleted,
+  }) {
+    return AppointmentListState(
+      status: status != null ? status() : this.status,
+      appointments: appointments != null ? appointments() : this.appointments,
+      filter: filter != null ? filter() : this.filter,
+      lastDeleted: lastDeleted != null ? lastDeleted() : this.lastDeleted
+    );
+  }
 
   @override
-  String toString() => 'Appointment already exists.';
-}
-
-class AppointmentRemoved extends AppointmentListState {
-  final List<AppointmentModel> appointmentList;
-
-  const AppointmentRemoved({required this.appointmentList})
-      : super(appointmentList: appointmentList);
-
-  @override
-  List<Object> get props => [appointmentList];
-
-  @override
-  String toString() => 'Appointment removed {$appointmentList}';
-}
-
-class AppointmentDoesNotExist extends AppointmentListState {
-  final List<AppointmentModel> appointmentList;
-
-  const AppointmentDoesNotExist({required this.appointmentList})
-      : super(appointmentList: appointmentList);
-
-  @override
-  List<Object> get props => [appointmentList];
-
-  @override
-  String toString() => 'Appointment does not exist.';
+  List<Object?> get props => [
+    status,
+    appointments,
+    filter,
+    lastDeleted
+  ];
 }

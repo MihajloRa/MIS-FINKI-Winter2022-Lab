@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:auth/auth.dart';
+import 'package:equatable/equatable.dart';
 
 part 'authentication_event.dart';
 part 'authentication_state.dart';
@@ -13,20 +14,24 @@ class AuthenticationBloc
     on<LoginWithEmailAndPasswordEvent>(_mapLoginWithEmailAndPasswordEvent);
     on<CreateAccountEvent>(_mapCreateAccountEvent);
     on<UserAlreadyLoggedInEvent>(_mapUserAlreadyLoggedInEvent);
+    on<UserSignOutEvent>(_mapUserSignOutEvent);
   }
 
   final AuthService _authService;
+  late UserEntity user;
+
 
   Future<void> _mapLoginWithEmailAndPasswordEvent(
       LoginWithEmailAndPasswordEvent event,
       Emitter<AuthenticationState> emit,
       ) async {
     try {
-      await _authService.signInWithEmailAndPassword(
+      UserEntity? user = await _authService.signInWithEmailAndPassword(
         email: event.email,
         password: event.password,
       );
-      emit(SuccessState());
+      this.user = user;
+      emit(SuccessState(user));
     } catch (e) {
       emit(
         ErrorState(
@@ -41,11 +46,12 @@ class AuthenticationBloc
       Emitter<AuthenticationState> emit,
       ) async {
     try {
-      await _authService.createUserWithEmailAndPassword(
+      UserEntity? user = await _authService.createUserWithEmailAndPassword(
         email: event.email,
         password: event.password,
       );
-      emit(SuccessState());
+      this.user = user;
+      emit(SuccessState(user));
     } catch (e) {
       emit(
         ErrorState(
@@ -59,8 +65,17 @@ class AuthenticationBloc
       UserAlreadyLoggedInEvent event,
       Emitter<AuthenticationState> emit,
       ) async {
-    return await _authService.isUserLoggedIn()
-    ? emit(SuccessState())
-    : emit(AuthenticationInitial());
+
+    UserEntity? user = await _authService.getLoggedInUser();
+    return user.isAnonymous
+      ? emit(AuthenticationInitial())
+      : emit(SuccessState(user));
+  }
+
+  Future<void> _mapUserSignOutEvent(
+    UserSignOutEvent event,
+    Emitter<AuthenticationState> emit
+  ) async {
+    await _authService.signOut().whenComplete(() => emit(AuthenticationInitial()));
   }
 }

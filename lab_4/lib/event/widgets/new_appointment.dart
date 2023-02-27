@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:date_format/date_format.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:lab_4/event/bloc/appointment_events.dart';
 
-import 'package:lab_4/event/model/appointment_model.dart';
 import 'package:nanoid/async.dart';
+import 'package:repository/repository.dart';
 
+import '../../auth/bloc/authentication_bloc.dart';
 import '../bloc/appointment_bloc.dart';
 import 'add_appointment_button.dart';
 
-class NewAppointment extends StatefulWidget {
+class NewAppointmentDialog extends StatefulWidget {
 
-  const NewAppointment({super.key});
+  const NewAppointmentDialog({super.key});
   @override
-  State<StatefulWidget> createState() => _NewAppointmentState();
+  State<StatefulWidget> createState() => _NewAppointmentDialogState();
 }
 
-class _NewAppointmentState extends State<NewAppointment> {
+class _NewAppointmentDialogState extends State<NewAppointmentDialog> {
   final _eventTitleController = TextEditingController();
   final _eventDateController = TextEditingController();
   final _eventTimeController = TextEditingController();
-  late final List<AppointmentModel> appointments;
 
   late String _hour, _minute, _time;
   late String dateTime;
@@ -80,33 +81,35 @@ class _NewAppointmentState extends State<NewAppointment> {
     super.initState();
   }
 
-  void _submitData() async {
+  Future<AppointmentEntity> _submitData(BuildContext context) async {
     if (_eventTitleController.text.isEmpty) {
-      return;
+      return AppointmentEntity.empty();
     }
-    final appointmentTitle = _eventTitleController.text;
+
+    appointmentTitle = _eventTitleController.text;
     final appointmentDate = DateTime(selectedDate.year, selectedDate.month, selectedDate.day,
-            selectedTime.hour, selectedTime.minute);
+        selectedTime.hour, selectedTime.minute);
 
     if (appointmentTitle.isEmpty || appointmentDate.isBefore(DateTime.now())) {
-      return;
+      return AppointmentEntity.empty();
     }
 
     String? id = await nanoid();
+    late AuthenticationState authState;
 
-    final newAppointment = AppointmentModel(
-        id: id,
-        appointmentTitle: appointmentTitle,
-        appointmentDateTime: appointmentDate.toString()
+    if (context.mounted) {
+      authState = context.read<AuthenticationBloc>().state;
+    }
+
+    return AppointmentEntity(
+      id: id,
+      userId: authState.user.id,
+      appointmentTitle: appointmentTitle,
+      appointmentDateTime: formatDate(appointmentDate,
+          [dd, '-', mm, '-', yyyy, ' ', hh, ':', nn, " ", am]),
+      updatedAt: formatDate(DateTime.now(),
+          [dd, '-', mm, '-', yyyy, ' ', hh, ':', nn, " ", am]),
     );
-
-    if (!mounted) return;
-
-    !appointments.contains(newAppointment) ?
-        BlocProvider.of<AppointmentBloc>(context).add(AddAppointment(newAppointment))
-      : Navigator.of(context).pop();
-
-    Navigator.of(context).pop();
   }
 
   @override
@@ -114,14 +117,14 @@ class _NewAppointmentState extends State<NewAppointment> {
     dateTime = formatDate(DateTime.now(), [dd, ":", mm, ":", yy]);
     return AlertDialog(
           content: Padding(
-            padding: const EdgeInsets.all(36),
+            padding: const EdgeInsets.all(26),
             child: Column(
             children: [
               TextField(
                 controller: _eventTitleController,
                 decoration: const InputDecoration(labelText: "Enter the event title:"),
                 onChanged: (newVal) => appointmentTitle = newVal,
-                onSubmitted: (_) => _submitData(),
+                onSubmitted: (_) => _submitData(context),
               ),
               TextField(
                 controller: _eventDateController,
@@ -129,15 +132,22 @@ class _NewAppointmentState extends State<NewAppointment> {
                 const InputDecoration(labelText: "Select the event date:"),
                 onTap: () async => _selectDate(context),
                 onChanged: (newVal) => appointmentDate = selectedDate,
-                onSubmitted: (_) => _submitData(),
+                onSubmitted: (_) => _submitData(context),
               ),
               TextField(
                 controller: _eventTimeController,
                 decoration: const InputDecoration(labelText: "Select the event time:"),
                 onTap: () async => _selectTime(context),
-                onSubmitted: (_) => _submitData(),
+                onSubmitted: (_) => _submitData(context),
               ),
-              AddEventButton("Add Event", () async => _submitData())
+              AddEventButton("Add Event",
+                () async {
+                AppointmentEntity? newAppointment = await _submitData(context);
+                if (newAppointment != AppointmentEntity.empty() && mounted) {
+                  GetIt.instance<AppointmentBloc>().add(AddAppointment(newAppointment));
+                  Navigator.of(context).pop();
+                }
+              })
             ],
           ),
         )
